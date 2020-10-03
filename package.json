@@ -1,0 +1,41 @@
+{
+  "name": "remi-be",
+  "version": "1.0.0",
+  "description": "Backend for Remi-Hr",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eebru-gzy/Remi-BE.git"
+  },
+  "keywords": [
+    "Node",
+    "Express",
+    "Human",
+    "Resource"
+  ],
+  "author": "Ibrahim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Eebru-gzy/Remi-BE/issues"
+  },
+  "homepage": "https://github.com/Eebru-gzy/Remi-BE#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "googleapis": "^60.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.2.5",
+    "nodemailer": "^6.4.13",
+    "nodemon": "^2.0.4",
+    "turbo-logger": "^1.1.9"
+  },
+  "devDependencies": {
+    "morgan": "^1.10.0"
+  }
+}
