@@ -33,7 +33,7 @@ module.exports = (company_email, link) => {
   <h2>Please confirm your email</h2>
   <br/>
   <br/>
-  <h2><a href=${link}>Click here</a> to activate your email and to login to your dashboard.</h2>
+  <h3><a href=${link}>Click here</a> to activate your email and to login to your dashboard.</h3>
   `;
 
   const mailOptions = {

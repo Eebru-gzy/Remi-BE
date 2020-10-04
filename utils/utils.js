@@ -7,7 +7,7 @@ module.exports = {
      * @param {Value} value 
      */
     parseJSON: async (value) => {
-        return JSON.parse(JSON.stringify(value));
+        return await JSON.parse(JSON.stringify(value));
     },
 
 
