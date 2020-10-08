@@ -2,13 +2,14 @@
   "name": "remi-be",
   "version": "1.0.0",
   "description": "Backend for Remi-Hr",
-  "main": "index.js",
+  "main": "server.js",
   "engines": {
     "node": "12.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -27,19 +28,16 @@
   },
   "homepage": "https://github.com/Eebru-gzy/Remi-BE#readme",
   "dependencies": {
-    "bcrypt": "^5.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "googleapis": "^60.0.1",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.2.5",
-    "nodemailer": "^6.4.13",
-    "nodemon": "^2.0.4",
-    "turbo-logger": "^1.1.9"
+    "nodemailer": "^6.4.13"
   },
   "devDependencies": {
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.4"
   }
 }
