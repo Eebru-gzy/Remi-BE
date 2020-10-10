@@ -1,8 +1,8 @@
 module.exports = {
   development: {
-    username: "root",
-    password: "pureheart4life",
-    database: "eim_module",
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     dialect: "mysql",
   },
