@@ -1,4 +1,6 @@
 "use strict";
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Employee extends Model {
@@ -26,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       phone_number: DataTypes.STRING,
       street_address: DataTypes.STRING,
       city: DataTypes.STRING,
-      sate: DataTypes.STRING,
+      state: DataTypes.STRING,
       date_of_birth: DataTypes.DATE,
       nationality: DataTypes.STRING,
       gender: DataTypes.STRING,
@@ -50,5 +52,21 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Employee",
     }
   );
+  Employee.beforeCreate(async (employee, options) => {
+    const salt = await bcrypt.genSalt(10);
+    employee.password = await bcrypt.hash(employee.password, salt);
+  });
+
+  // Match user entered password to hashed password in database
+  Employee.matchPassword = async (enteredPassword, password) => {
+    return await bcrypt.compare(enteredPassword, password);
+  };
+
+  // Sign JWT and return
+  Employee.getSignedJwtToken = (id) => {
+    return jwt.sign({ id, role: "employee" }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE,
+    });
+  };
   return Employee;
 };

@@ -1,4 +1,5 @@
 const express = require("express");
+const cookies = require("cookie-parser");
 const morgan = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
@@ -22,6 +23,9 @@ app.use(express.json());
 
 // morgan middleware
 app.use(morgan("tiny"));
+
+// enable cookies
+app.use(cookies());
 
 // Mount Route files
 app.use("/api/auth", auth);
