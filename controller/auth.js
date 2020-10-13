@@ -1,8 +1,10 @@
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const { Company } = require("../models");
 const { Employee } = require("../models");
 const errorResponse = require("../utils/errorResponse");
 const successResponse = require("../utils/successResponse");
+const sendMail = require("../utils/mailer");
 
 // @desc    Register a company
 // @route   POST /api/auth/company/signup
@@ -55,14 +57,34 @@ exports.companyRegister = async (req, res, next) => {
         res
       );
     }
+    // generate confirm token
+    const confirmToken = crypto.randomBytes(10).toString("hex");
+    // Create signup confirmation url
+    const signupConfirmUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/auth/confirm_signup/${confirmToken}`;
+    const message = `Hello ${name},<br><br>To verify your email address (${email}), Please
+        <a href="${signupConfirmUrl}"> Click here</a> OR <br><br> Copy and paste the link below in your browser <br>
+        <a href="${signupConfirmUrl}">${signupConfirmUrl}</a>
+        <br><br>Thank you, <br>REMI EIM`;
+    const subject = "Email Confirmation";
+
     const newCompany = await Company.create({
       name,
       email,
       password,
       logo,
+      confirm_token: confirmToken,
+      email_verified: false,
     });
     if (newCompany) {
-      return successResponse(201, "Account created successfully.", res);
+      // send mail and return a response
+      await sendMail(message, subject, email);
+      return successResponse(
+        201,
+        "Account created successfully. Please check your email for confirmation link.",
+        res
+      );
     }
     return errorResponse(500, "An error occured!", res);
   } catch (error) {
@@ -113,6 +135,13 @@ exports.userLogin = async (req, res, next) => {
         return errorResponse(400, "Invalid credentials.", res);
       }
     } else {
+      if (!company.email_verified) {
+        return errorResponse(
+          400,
+          "Please verify your email. Check your email for verification link.",
+          res
+        );
+      }
       // authenticate against companies table
       const isMatch = await Company.matchPassword(password, company.password);
       if (isMatch) {
@@ -123,6 +152,29 @@ exports.userLogin = async (req, res, next) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+// @desc    Email confirmation
+// @route   GET /api/auth/confirm_signup/:confirmToken
+// @access  Public
+exports.confirmEmail = async (req, res) => {
+  const { confirmToken } = req.params;
+  const company = await Company.findOne({
+    where: {
+      confirm_token: confirmToken,
+    },
+  });
+  if (company === null) {
+    return errorResponse(400, "Invalid confirmation token", res);
+  }
+  if (company.email_verified) {
+    return successResponse(200, "Email already verified!", res);
+  }
+
+  company.email_verified = true;
+  company.save();
+
+  return res.send("Email verified!");
 };
 
 // Get token from model, create cookie and send response

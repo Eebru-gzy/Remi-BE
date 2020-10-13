@@ -4,6 +4,7 @@ const {
   employeeRegister,
   userLogin,
   employeeResetPass,
+  confirmEmail,
 } = require("../../controller/auth");
 
 const {
@@ -21,6 +22,7 @@ router.patch('/employee/reset_password', protect, employeeResetPass)
 
 
 
+router.get("/confirm_signup/:confirmToken", confirmEmail);
 
 router.get("/company/profile", protect, companyAuthorize, (req, res) => {
   res.send("company profile");
