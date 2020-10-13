@@ -5,10 +5,8 @@ module.exports = {
     /**
      * Add altering commands here.
      *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-    return queryInterface.addColumn("EmployeeDocuments", "EmployeeId", {
+     * 
+     * ," EmployeeDocuments", "EmployeeId", {
       type: Sequelize.INTEGER,
       references: {
         model: "Employees",
@@ -16,7 +14,16 @@ module.exports = {
       },
       onUpdate: "CASCADE",
       onDelete: "SET NULL",
-    });
+    }
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
+     * 
+     * "ALTER TABLE user
+  ADD CONSTRAINT user_group_id_fkey FOREIGN KEY (group_id)
+  REFERENCES group (id) MATCH SIMPLE
+  ON UPDATE CASCADE ON DELETE CASCADE;"
+     */
+    return queryInterface.sequelize.query("ALTER TABLE EmployeeDocuments ADD CONSTRAINT EmployeeID FOREIGN KEY (EmployeeID) REFERENCES Employees (id) MATCH SIMPLE ON UPDATE CASCADE ON DELETE SET NULL");
   },
 
   down: async (queryInterface, Sequelize) => {

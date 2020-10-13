@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const { Company } = require("../models");
 const { Employee } = require("../models");
 const errorResponse = require("../utils/errorResponse");
@@ -77,7 +78,6 @@ exports.employeeRegister = async (req, res, next) => {
     const newEmployee = await Employee.create({
       name: "John Simons",
       email: "johnsimons@test.com",
-      password: "12345678abc",
     });
     return res.json(newEmployee);
   } catch (error) {
@@ -145,3 +145,50 @@ const sendTokenResponse = (statusCode, user, model, res) => {
     user: user,
   });
 };
+
+
+
+exports.employeeResetPass = async (req, res) => {
+  const {newPass} = req.body;
+  const userId = req.user.id;
+  const salt = await bcrypt.genSalt(10);
+
+  if (newPass.length < 8) {
+    return errorResponse(400, "Password must be at least 8 characters", res);
+  }
+  if (newPass.search(/\d/) == -1) {
+    return errorResponse(
+      400,
+      "Password must contain at least one number",
+      res
+    );
+  }
+  if (newPass.search(/[a-zA-Z]/) == -1) {
+    return errorResponse(
+      400,
+      "Password must contain at least one letter",
+      res
+    );
+  }
+  if (newPass.search(/[^a-zA-Z0-9\@\#\$\&\_\+\.\,\;\:]/) != -1) {
+    return errorResponse(
+      400,
+      "Password may only contain '@', '#', '$', '&', '_', '+' special characters.",
+      res
+    );
+  }
+  const hashPass = await bcrypt.hash(newPass, salt);
+  try {
+    const reset = await Employee.update({ password: hashPass }, {
+      where: {
+        id: userId
+      }
+    });
+    if (!reset) {
+      return errorResponse(400, "Unable to reset password.", res);
+    }
+    return successResponse(201, "Password reset successfully.", res);
+  } catch (error) {
+    return errorResponse(400, "Unable to reset password.", res)
+  }
+}
