@@ -3,6 +3,7 @@ const {
   companyRegister,
   employeeRegister,
   userLogin,
+  confirmEmail,
 } = require("../../controller/auth");
 
 const {
@@ -16,6 +17,7 @@ const router = Router();
 router.post("/company/signup", companyRegister);
 router.post("/employee/signup", employeeRegister);
 router.post("/login", userLogin);
+router.get("/confirm_signup/:confirmToken", confirmEmail);
 
 router.get("/company/profile", protect, companyAuthorize, (req, res) => {
   res.send("company profile");
