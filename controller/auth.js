@@ -168,13 +168,13 @@ exports.confirmEmail = async (req, res) => {
     return errorResponse(400, "Invalid confirmation token", res);
   }
   if (company.email_verified) {
-    return successResponse(200, "Email already verified!", res);
+    res.redirect("http://127.0.0.1:5500/alreadyverified.html");
   }
 
   company.email_verified = true;
   company.save();
 
-  return res.send("Email verified!");
+  res.redirect("http://127.0.0.1:5500/verified.html");
 };
 
 // Get token from model, create cookie and send response
