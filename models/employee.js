@@ -52,11 +52,15 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Employee",
     }
   );
+  Employee.beforeCreate(async (employee) => {
+    employee.password = '000000'
+  });
+  
   Employee.beforeCreate(async (employee, options) => {
     const salt = await bcrypt.genSalt(10);
     employee.password = await bcrypt.hash(employee.password, salt);
   });
-
+  
   // Match user entered password to hashed password in database
   Employee.matchPassword = async (enteredPassword, password) => {
     return await bcrypt.compare(enteredPassword, password);
