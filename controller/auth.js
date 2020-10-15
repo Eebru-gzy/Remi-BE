@@ -1,4 +1,3 @@
-const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { Company } = require("../models");
 const { Employee } = require("../models");
@@ -7,7 +6,7 @@ const successResponse = require("../utils/successResponse");
 const sendMail = require("../utils/mailer");
 
 // @desc    Register a company
-// @route   POST /api/auth/company/signup
+// @route   POST /api/company/signup
 // @access  Public
 exports.companyRegister = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -62,7 +61,8 @@ exports.companyRegister = async (req, res, next) => {
     // Create signup confirmation url
     const signupConfirmUrl = `${req.protocol}://${req.get(
       "host"
-    )}/api/auth/confirm_signup/${confirmToken}`;
+    )}/api/confirm_signup/${confirmToken}`;
+
     const message = `Hello ${name},<br><br>To verify your email address (${email}), Please
         <a href="${signupConfirmUrl}"> Click here</a> OR <br><br> Copy and paste the link below in your browser <br>
         <a href="${signupConfirmUrl}">${signupConfirmUrl}</a>
@@ -92,23 +92,31 @@ exports.companyRegister = async (req, res, next) => {
   }
 };
 
-// @desc    Register an Employee
-// @route   POST /api/auth/employee/signup
+// @desc    Email confirmation
+// @route   GET /api/confirm_signup/:confirmToken
 // @access  Public
-exports.employeeRegister = async (req, res, next) => {
-  try {
-    const newEmployee = await Employee.create({
-      name: "John Simons",
-      email: "johnsimons@test.com",
-    });
-    return res.json(newEmployee);
-  } catch (error) {
-    console.log(error);
+exports.confirmEmail = async (req, res) => {
+  const { confirmToken } = req.params;
+  const company = await Company.findOne({
+    where: {
+      confirm_token: confirmToken,
+    },
+  });
+  if (company === null) {
+    return errorResponse(400, "Invalid confirmation token", res);
   }
+  if (company.email_verified) {
+    res.redirect("http://127.0.0.1:5500/alreadyverified.html");
+  }
+
+  company.email_verified = true;
+  company.save();
+
+  res.redirect("http://127.0.0.1:5500/verified.html");
 };
 
 // @desc    Login a company/employee
-// @route   POST /api/auth/login
+// @route   POST /api/login
 // @access  Public
 exports.userLogin = async (req, res, next) => {
   const { email, password } = req.body;
@@ -116,10 +124,16 @@ exports.userLogin = async (req, res, next) => {
     if (!email || !password) {
       return errorResponse(400, "Please fill all fields.", res);
     }
-    const company = await Company.findOne({ where: { email } });
+    const company = await Company.findOne({
+      include: { model: Employee },
+      where: { email },
+    });
     if (company === null) {
       // email does not exist in companies table, check employees table
-      const employee = await Employee.findOne({ where: { email } });
+      const employee = await Employee.findOne({
+        include: { model: Company },
+        where: { email },
+      });
       // if no record found, then email does not exist anywhere
       if (employee === null) {
         return errorResponse(400, "Invalid credentials.", res);
@@ -154,29 +168,6 @@ exports.userLogin = async (req, res, next) => {
   }
 };
 
-// @desc    Email confirmation
-// @route   GET /api/auth/confirm_signup/:confirmToken
-// @access  Public
-exports.confirmEmail = async (req, res) => {
-  const { confirmToken } = req.params;
-  const company = await Company.findOne({
-    where: {
-      confirm_token: confirmToken,
-    },
-  });
-  if (company === null) {
-    return errorResponse(400, "Invalid confirmation token", res);
-  }
-  if (company.email_verified) {
-    res.redirect("http://127.0.0.1:5500/alreadyverified.html");
-  }
-
-  company.email_verified = true;
-  company.save();
-
-  res.redirect("http://127.0.0.1:5500/verified.html");
-};
-
 // Get token from model, create cookie and send response
 const sendTokenResponse = (statusCode, user, model, res) => {
   // Create token
@@ -197,50 +188,3 @@ const sendTokenResponse = (statusCode, user, model, res) => {
     user: user,
   });
 };
-
-
-
-exports.employeeResetPass = async (req, res) => {
-  const {newPass} = req.body;
-  const userId = req.user.id;
-  const salt = await bcrypt.genSalt(10);
-
-  if (newPass.length < 8) {
-    return errorResponse(400, "Password must be at least 8 characters", res);
-  }
-  if (newPass.search(/\d/) == -1) {
-    return errorResponse(
-      400,
-      "Password must contain at least one number",
-      res
-    );
-  }
-  if (newPass.search(/[a-zA-Z]/) == -1) {
-    return errorResponse(
-      400,
-      "Password must contain at least one letter",
-      res
-    );
-  }
-  if (newPass.search(/[^a-zA-Z0-9\@\#\$\&\_\+\.\,\;\:]/) != -1) {
-    return errorResponse(
-      400,
-      "Password may only contain '@', '#', '$', '&', '_', '+' special characters.",
-      res
-    );
-  }
-  const hashPass = await bcrypt.hash(newPass, salt);
-  try {
-    const reset = await Employee.update({ password: hashPass }, {
-      where: {
-        id: userId
-      }
-    });
-    if (!reset) {
-      return errorResponse(400, "Unable to reset password.", res);
-    }
-    return successResponse(201, "Password reset successfully.", res);
-  } catch (error) {
-    return errorResponse(400, "Unable to reset password.", res)
-  }
-}

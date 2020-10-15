@@ -20,7 +20,9 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       email: DataTypes.STRING,
       password: DataTypes.STRING,
+      job_title: DataTypes.STRING,
       department: DataTypes.STRING,
+      branch: DataTypes.STRING,
       line_manager_name: DataTypes.STRING,
       line_manager_position: DataTypes.STRING,
       line_manager_phone: DataTypes.STRING,
@@ -53,14 +55,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
   Employee.beforeCreate(async (employee) => {
-    employee.password = '000000'
+    employee.password = "000000";
   });
-  
+
   Employee.beforeCreate(async (employee, options) => {
     const salt = await bcrypt.genSalt(10);
     employee.password = await bcrypt.hash(employee.password, salt);
   });
-  
+
   // Match user entered password to hashed password in database
   Employee.matchPassword = async (enteredPassword, password) => {
     return await bcrypt.compare(enteredPassword, password);

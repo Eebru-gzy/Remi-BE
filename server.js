@@ -16,6 +16,7 @@ connectDB();
 
 // Load Route files
 const auth = require("./routes/api/auth");
+const employee = require("./routes/api/employee");
 
 // express body-parser
 app.use(express.urlencoded({ extended: false }));
@@ -28,7 +29,8 @@ app.use(morgan("tiny"));
 app.use(cookies());
 
 // Mount Route files
-app.use("/api/auth", auth);
+app.use("/api", auth);
+app.use("/api", employee);
 
 app.get("/", (req, res) => {
   res.send("Employee Information Module");
