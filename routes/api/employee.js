@@ -3,6 +3,8 @@ const {
   addEmployee,
   employeeResetPass,
   updateProfile,
+  nextOfKin,
+  payroll
 } = require("../../controller/employee");
 
 const {
@@ -21,5 +23,7 @@ router.patch(
   employeeResetPass
 );
 router.patch("/employee/update", protect, employeeAuthorize, updateProfile);
+router.patch("/employee/update/nok", protect, employeeAuthorize, nextOfKin);
+router.patch("/employee/update/payroll", protect, employeeAuthorize, payroll);
 
 module.exports = router;

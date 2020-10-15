@@ -8,7 +8,7 @@ const e = require("express");
 // @desc    Company add Employee
 // @route   POST /api/add_employee
 // @access  Private
-exports.addEmployee = async (req, res, next) => {
+exports.addEmployee = async (req, res) => {
   const companyId = req.user.id;
   const companyName = req.user.name;
   const {
@@ -152,3 +152,61 @@ exports.updateProfile = async (req, res) => {
     console.log(error);
   }
 };
+
+// @desc    Employee Complete Profile
+// @route   PATCH /api/employee/update/nok
+// @access  Private
+exports.nextOfKin = async (req, res) => {
+  const user = req.user;
+  const {nok_name, nok_email, nok_phone, nok_street, nok_address} = req.body;
+
+  try {
+    const updated = await Employee.update(
+      {
+        nok_name, nok_email, nok_phone, nok_street, nok_address
+      },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+    if (updated) {
+      return res.json({
+        message: "Updated!",
+        updated,
+      });
+    }
+  } catch (error) {
+    return errorResponse(500, 'Internal Server Error', res);
+  }
+}
+
+// @desc    Employee Complete Profile
+// @route   PATCH /api/employee/update/payroll
+// @access  Private
+exports.payroll = async (req, res) => {
+  const user = req.user;
+  const {insurance_number,pension_id,tax_id,account_number,bank_name} = req.body;
+
+  try {
+    const updated = await Employee.update(
+      {
+        insurance_number,pension_id,tax_id,account_number,bank_name
+      },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+    if (updated) {
+      return res.json({
+        message: "Updated!",
+        updated,
+      });
+    }
+  } catch (error) {
+    return errorResponse(500, 'Internal Server Error', res);
+  }
+}
