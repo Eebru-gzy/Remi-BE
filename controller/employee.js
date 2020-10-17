@@ -1,9 +1,17 @@
 const bcrypt = require("bcryptjs");
-const { Employee } = require("../models");
+const fs = require("fs");
+const cloudinary = require("cloudinary").v2;
+const { Company, Employee, EmployeeDocument } = require("../models");
 const errorResponse = require("../utils/errorResponse");
 const successResponse = require("../utils/successResponse");
 const sendMail = require("../utils/mailer");
-const e = require("express");
+
+// cloudinary config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // @desc    Company add Employee
 // @route   POST /api/add_employee
@@ -111,24 +119,54 @@ exports.employeeResetPass = async (req, res) => {
   }
 };
 
-// @desc    Employee Complete Profile
-// @route   PATCH /api/employee/update
+// @desc    Employee Update Personal Profile
+// @route   PATCH /api/employee/personal/update
 // @access  Private
-exports.updateProfile = async (req, res) => {
+exports.personal = async (req, res) => {
   const employee = req.user;
-  const { personal, physical } = req.body;
+  const {
+    phone_number,
+    street_address,
+    city,
+    state,
+    date_of_birth,
+    nationality,
+  } = req.body;
 
-  const { phone, street, city, state, date_of_birth, nationality } = personal;
-  const { gender, weight, height, genotype, blood_group } = physical;
   try {
     const updated = await Employee.update(
       {
-        phone_number: phone,
-        street_address: street,
+        phone_number,
+        street_address,
         city,
         state,
         date_of_birth,
         nationality,
+      },
+      {
+        where: {
+          id: employee.id,
+        },
+      }
+    );
+    if (updated) {
+      return successResponse(200, "SUCCESS!", res);
+    }
+  } catch (error) {
+    return errorResponse(500, "Internal Server Error", res);
+  }
+};
+
+// @desc    Employee Update Physical Profile
+// @route   PATCH /api/employee/physical/update
+// @access  Private
+exports.physical = async (req, res) => {
+  const employee = req.user;
+  const { gender, weight, height, genotype, blood_group } = req.body;
+
+  try {
+    const updated = await Employee.update(
+      {
         gender,
         weight,
         height,
@@ -141,15 +179,11 @@ exports.updateProfile = async (req, res) => {
         },
       }
     );
-
     if (updated) {
-      return res.json({
-        message: "Updated!",
-        updated,
-      });
+      return successResponse(200, "SUCCESS!", res);
     }
   } catch (error) {
-    console.log(error);
+    return errorResponse(500, "Internal Server Error", res);
   }
 };
 
@@ -158,12 +192,16 @@ exports.updateProfile = async (req, res) => {
 // @access  Private
 exports.nextOfKin = async (req, res) => {
   const user = req.user;
-  const {nok_name, nok_email, nok_phone, nok_street, nok_address} = req.body;
+  const { nok_name, nok_email, nok_phone, nok_street, nok_address } = req.body;
 
   try {
     const updated = await Employee.update(
       {
-        nok_name, nok_email, nok_phone, nok_street, nok_address
+        nok_name,
+        nok_email,
+        nok_phone,
+        nok_street,
+        nok_address,
       },
       {
         where: {
@@ -172,27 +210,34 @@ exports.nextOfKin = async (req, res) => {
       }
     );
     if (updated) {
-      return res.json({
-        message: "Updated!",
-        updated,
-      });
+      return successResponse(200, "SUCCESS!", res);
     }
   } catch (error) {
-    return errorResponse(500, 'Internal Server Error', res);
+    return errorResponse(500, "Internal Server Error", res);
   }
-}
+};
 
 // @desc    Employee Complete Profile
 // @route   PATCH /api/employee/update/payroll
 // @access  Private
 exports.payroll = async (req, res) => {
   const user = req.user;
-  const {insurance_number,pension_id,tax_id,account_number,bank_name} = req.body;
+  const {
+    insurance_number,
+    pension_id,
+    tax_id,
+    account_number,
+    bank_name,
+  } = req.body;
 
   try {
     const updated = await Employee.update(
       {
-        insurance_number,pension_id,tax_id,account_number,bank_name
+        insurance_number,
+        pension_id,
+        tax_id,
+        account_number,
+        bank_name,
       },
       {
         where: {
@@ -201,12 +246,66 @@ exports.payroll = async (req, res) => {
       }
     );
     if (updated) {
-      return res.json({
-        message: "Updated!",
-        updated,
-      });
+      return successResponse(200, "SUCCESS!", res);
     }
   } catch (error) {
-    return errorResponse(500, 'Internal Server Error', res);
+    return errorResponse(500, "Internal Server Error", res);
   }
-}
+};
+
+// @desc    Employee Upload Document
+// @route   PATCH /api/employee/update/document
+// @access  Private
+exports.document = async (req, res) => {
+  const employee = req.user;
+  const docs = req.files;
+  const uploaded_files = [];
+  try {
+    for (let i = 0; i < docs.length; i++) {
+      const filePath = docs[i].path;
+      const result = await cloudinary.uploader.upload(filePath);
+      if (result) {
+        uploaded_files.push(result["url"]);
+      }
+    }
+    for (let i = 0; i < docs.length; i++) {
+      const fileName = docs[i].originalname;
+      const fileUrl = uploaded_files[i];
+      var uploadedDocs = await EmployeeDocument.create({
+        name: fileName,
+        url: fileUrl,
+        employeeId: employee.id,
+      });
+    }
+    if (uploadedDocs) {
+      fs.rmdir("uploads", { recursive: true });
+      return successResponse(201, "Documents uploaded!", res);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// @desc    Get employee profile
+// @route   GET /api/employee
+// @access  Private
+exports.employeeProfile = async (req, res) => {
+  const employeeId = req.user.id;
+  const employee = await Employee.findOne({
+    include: [
+      { model: Company, attributes: ["name", "logo"] },
+      { model: EmployeeDocument, attributes: ["id", "name", "url"] },
+    ],
+    where: {
+      id: employeeId,
+    },
+    attributes: {
+      exclude: ["password"],
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    user: employee,
+  });
+};

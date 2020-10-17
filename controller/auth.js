@@ -125,7 +125,12 @@ exports.userLogin = async (req, res, next) => {
       return errorResponse(400, "Please fill all fields.", res);
     }
     const company = await Company.findOne({
-      include: { model: Employee },
+      include: {
+        model: Employee,
+        attributes: {
+          exclude: ["password"],
+        },
+      },
       where: { email },
     });
     if (company === null) {
@@ -144,6 +149,7 @@ exports.userLogin = async (req, res, next) => {
           employee.password
         );
         if (isMatch) {
+          employee.password = undefined;
           return sendTokenResponse(200, employee, Employee, res);
         }
         return errorResponse(400, "Invalid credentials.", res);
@@ -159,12 +165,13 @@ exports.userLogin = async (req, res, next) => {
       // authenticate against companies table
       const isMatch = await Company.matchPassword(password, company.password);
       if (isMatch) {
+        company.password = undefined;
         return sendTokenResponse(200, company, Company, res);
       }
       return errorResponse(400, "Invalid credentials.", res);
     }
   } catch (error) {
-    console.log(error);
+    return errorResponse(500, "Internal server error", res);
   }
 };
 
