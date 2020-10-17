@@ -16,11 +16,14 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     operatorsAliases: false,
   },
+  // production: {
+  //   username: process.env.PROD_DB_USER,
+  //   password: process.env.PROD_DB_PASS,
+  //   database: process.env.PROD_DB_NAME,
+  //   host: process.env.PROD_DB_HOST,
+  //   dialect: "mysql",
+  // },
   production: {
-    username: process.env.PROD_DB_USER,
-    password: process.env.PROD_DB_PASS,
-    database: process.env.PROD_DB_NAME,
-    host: process.env.PROD_DB_HOST,
-    dialect: "mysql",
+    use_env_variable: "CLEARDB_DATABASE_URL",
   },
 };
