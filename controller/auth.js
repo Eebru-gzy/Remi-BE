@@ -4,6 +4,7 @@ const { Employee } = require("../models");
 const errorResponse = require("../utils/errorResponse");
 const successResponse = require("../utils/successResponse");
 const sendMail = require("../utils/mailer");
+const nodemailer = require('../utils/nodemailer');
 
 // @desc    Register a company
 // @route   POST /api/company/signup
@@ -80,6 +81,8 @@ exports.companyRegister = async (req, res, next) => {
     if (newCompany) {
       // send mail and return a response
       await sendMail(message, subject, email);
+      // await nodemailer(email, signupConfirmUrl);
+
       return successResponse(
         201,
         "Account created successfully. Please check your email for confirmation link.",

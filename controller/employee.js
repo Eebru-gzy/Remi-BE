@@ -278,7 +278,7 @@ exports.document = async (req, res) => {
       });
     }
     if (uploadedDocs) {
-      fs.rmdir("uploads", { recursive: true });
+      // fs.rmdir("uploads", { recursive: true });
       return successResponse(201, "Documents uploaded!", res);
     }
   } catch (error) {
