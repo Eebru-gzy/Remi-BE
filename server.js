@@ -1,6 +1,6 @@
 const express = require("express");
 const cookies = require("cookie-parser");
-const morgan = require("morgan");
+// const morgan = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // morgan middleware
-app.use(morgan("tiny"));
+// app.use(morgan("tiny"));
 
 // enable cookies
 app.use(cookies());
