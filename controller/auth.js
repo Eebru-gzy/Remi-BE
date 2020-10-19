@@ -108,13 +108,13 @@ exports.confirmEmail = async (req, res) => {
     return errorResponse(400, "Invalid confirmation token", res);
   }
   if (company.email_verified) {
-    res.redirect("http://127.0.0.1:5500/alreadyverified.html");
+    res.redirect("http://localhost:3000/login");
   }
 
   company.email_verified = true;
   company.save();
 
-  res.redirect("http://127.0.0.1:5500/verified.html");
+  res.redirect("http://localhost:3000/login");
 };
 
 // @desc    Login a company/employee
