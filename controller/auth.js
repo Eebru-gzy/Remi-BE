@@ -108,13 +108,13 @@ exports.confirmEmail = async (req, res) => {
     return errorResponse(400, "Invalid confirmation token", res);
   }
   if (company.email_verified) {
-    res.redirect("http://localhost:3000/success");
+    res.redirect("http://localhost:3000/confirmemail");
   }
 
   company.email_verified = true;
   company.save();
 
-  res.redirect("http://localhost:3000/success");
+  res.redirect("http://localhost:3000/confirmemail");
 };
 
 // @desc    Login a company/employee
@@ -152,6 +152,7 @@ exports.userLogin = async (req, res, next) => {
         );
         if (isMatch) {
           employee.password = undefined;
+          employee.role = "employee";
           return sendTokenResponse(200, employee, Employee, res);
         }
         return errorResponse(400, "Invalid credentials.", res);
@@ -168,6 +169,7 @@ exports.userLogin = async (req, res, next) => {
       const isMatch = await Company.matchPassword(password, company.password);
       if (isMatch) {
         company.password = undefined;
+        company.role = "company";
         return sendTokenResponse(200, company, Company, res);
       }
       return errorResponse(400, "Invalid credentials.", res);
