@@ -4,7 +4,7 @@ const cloudinary = require("cloudinary").v2;
 const { Company, Employee, EmployeeDocument } = require("../models");
 const errorResponse = require("../utils/errorResponse");
 const successResponse = require("../utils/successResponse");
-const sendMail = require("../utils/mailer");
+const { sendEmail } = require("../utils/mailer");
 
 // cloudinary config
 cloudinary.config({
@@ -47,7 +47,7 @@ exports.addEmployee = async (req, res) => {
     const subject = `${companyName} New Employee Account.`;
     const message = `Hello ${name},<br><br>An employee account has been created for you at (www.remi.com). <br/> Please
         <a href="http://127.0.0.1:5500/login.html"> Click here</a> to login with default password <b>"000000"</b>
-        <br><br>Thank you, <br>${companyName}`;
+        <br><br>Thank you, <br>${companyName} <br> Powered By REMI HR`;
 
     const newEmployee = await Employee.create({
       name,
@@ -64,6 +64,13 @@ exports.addEmployee = async (req, res) => {
     if (newEmployee) {
       //send mail
       await sendMail(message, subject, email);
+      sendEmail(
+        `no-reply@${companyName}.com`,
+        email,
+        newEmployee.name,
+        subject,
+        message
+      );
       return successResponse(
         201,
         "Employee account created! Employee will receive an email link to login and change password.",
@@ -72,7 +79,7 @@ exports.addEmployee = async (req, res) => {
     }
     return errorResponse(500, "Internal server error", res);
   } catch (error) {
-    console.log(error);
+    return errorResponse(500, "Internal server error", res);
   }
 };
 
@@ -278,11 +285,10 @@ exports.document = async (req, res) => {
       });
     }
     if (uploadedDocs) {
-      //fs.rmdir("uploads", { recursive: true });
       return successResponse(201, "Documents uploaded!", res);
     }
   } catch (error) {
-    console.log(error);
+    return errorResponse(500, "Internal server error", res);
   }
 };
 

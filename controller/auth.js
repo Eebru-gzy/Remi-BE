@@ -3,8 +3,8 @@ const { Company } = require("../models");
 const { Employee } = require("../models");
 const errorResponse = require("../utils/errorResponse");
 const successResponse = require("../utils/successResponse");
-const sendMail = require("../utils/mailer");
-const nodemailer = require('../utils/nodemailer');
+const { sendMail, sendEmail } = require("../utils/mailer");
+const nodemailer = require("../utils/nodemailer");
 
 // @desc    Register a company
 // @route   POST /api/company/signup
@@ -80,8 +80,7 @@ exports.companyRegister = async (req, res, next) => {
     });
     if (newCompany) {
       // send mail and return a response
-      await sendMail(message, subject, email);
-      // await nodemailer(email, signupConfirmUrl);
+      sendEmail("no-reply@remi.com", email, newCompany.name, subject, message);
 
       return successResponse(
         201,
@@ -91,7 +90,7 @@ exports.companyRegister = async (req, res, next) => {
     }
     return errorResponse(500, "An error occured!", res);
   } catch (error) {
-    console.log("err", error);
+    return errorResponse(500, "An error occured!", res);
   }
 };
 
