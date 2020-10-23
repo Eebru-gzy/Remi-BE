@@ -168,13 +168,12 @@ exports.userLogin = async (req, res, next) => {
       // authenticate against companies table
       const isMatch = await Company.matchPassword(password, company.password);
       if (isMatch) {
-        company.password = undefined;
-        company.role = "company";
         return sendTokenResponse(200, company, Company, res);
       }
       return errorResponse(400, "Invalid credentials.", res);
     }
   } catch (error) {
+    console.log(error);
     return errorResponse(500, "Internal server error", res);
   }
 };
