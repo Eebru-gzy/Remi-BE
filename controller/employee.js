@@ -63,8 +63,7 @@ exports.addEmployee = async (req, res) => {
 
     if (newEmployee) {
       //send mail
-      await sendMail(message, subject, email);
-      sendEmail(
+      await sendEmail(
         `no-reply@${companyName}.com`,
         email,
         newEmployee.name,
@@ -77,7 +76,7 @@ exports.addEmployee = async (req, res) => {
         res
       );
     }
-    return errorResponse(500, "Internal server error", res);
+    return errorResponse(500, "Unable to add employee", res);
   } catch (error) {
     return errorResponse(500, "Internal server error", res);
   }
