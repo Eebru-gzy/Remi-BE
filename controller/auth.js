@@ -9,7 +9,7 @@ const nodemailer = require("../utils/nodemailer");
 // @desc    Register a company
 // @route   POST /api/company/signup
 // @access  Public
-exports.companyRegister = async (req, res, next) => {
+exports.companyRegister = async (req, res) => {
   const { name, email, password, url } = req.body;
   try {
     if (!name || !email || !password) {
