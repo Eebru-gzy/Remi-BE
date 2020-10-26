@@ -10,7 +10,7 @@ const nodemailer = require("../utils/nodemailer");
 // @route   POST /api/company/signup
 // @access  Public
 exports.companyRegister = async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, url } = req.body;
   try {
     if (!name || !email || !password) {
       return errorResponse(400, "Please fill all fields", res);
@@ -60,9 +60,7 @@ exports.companyRegister = async (req, res, next) => {
     // generate confirm token
     const confirmToken = crypto.randomBytes(10).toString("hex");
     // Create signup confirmation url
-    const signupConfirmUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/api/confirm_signup/${confirmToken}`;
+    const signupConfirmUrl = `${url}/api/confirm_signup/${confirmToken}`;
 
     const message = `Hello ${name},<br><br>To verify your email address (${email}), Please
         <a href="${signupConfirmUrl}"> Click here</a> OR <br><br> Copy and paste the link below in your browser <br>
