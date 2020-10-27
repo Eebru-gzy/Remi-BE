@@ -4,9 +4,10 @@ const { Sequelize } = require("sequelize");
 
 if (process.env.CLEARDB_DATABASE_URL) {
   sequelize = new Sequelize(
-    process.env.CLEARDB_DATABASE_URL,
+    process.env.CLEARDATABASE_URL,
     {
       dialect: process.env.DB_DIALECT,
+      host: process.env.DB_HOST,
       port: 3306,
       logging: false,
     }
