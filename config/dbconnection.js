@@ -7,7 +7,7 @@ if (process.env.CLEARDB_DATABASE_URL) {
     process.env.CLEARDB_DATABASE_URL,
     {
       dialect: process.env.DB_DIALECT,
-      host: process.env.DB_HOST,
+      host: 'localhost',
       port: 3306,
       logging: false,
     }
