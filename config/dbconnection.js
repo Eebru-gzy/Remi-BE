@@ -6,7 +6,6 @@ if (process.env.DATABASE_URL) {
   sequelize = new Sequelize(
     process.env.DATABASE_URL,
     {
-      host: process.env.DB_HOST,
       dialect: process.env.DB_DIALECT,
       port: 3306,
       logging: false,
