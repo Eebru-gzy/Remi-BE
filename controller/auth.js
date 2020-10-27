@@ -10,7 +10,7 @@ const nodemailer = require("../utils/nodemailer");
 // @route   POST /api/company/signup
 // @access  Public
 exports.companyRegister = async (req, res) => {
-  const { name, email, password, url } = req.body;
+  const { name, email, password } = req.body;
   try {
     if (!name || !email || !password) {
       return errorResponse(400, "Please fill all fields", res);
@@ -60,7 +60,9 @@ exports.companyRegister = async (req, res) => {
     // generate confirm token
     const confirmToken = crypto.randomBytes(10).toString("hex");
     // Create signup confirmation url
-    const signupConfirmUrl = `https://remi-be.herokuapp.com/api/confirm_signup/${confirmToken}`;
+    const signupConfirmUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/confirm_signup/${confirmToken}`;
 
     const message = `Hello ${name},<br><br>To verify your email address (${email}), Please
         <a href="${signupConfirmUrl}"> Click here</a> OR <br><br> Copy and paste the link below in your browser <br>
@@ -106,12 +108,12 @@ exports.confirmEmail = async (req, res) => {
     return errorResponse(400, "Invalid confirmation token", res);
   }
   if (company.email_verified) {
-    res.redirect(`${req.redirect_URL_}/confirmemail`);
+    res.redirect(`https://remi-hr-app.herokuapp.com/confirmemail`);
   }
 
   company.email_verified = true;
   company.save();
-  res.redirect(`${req.redirect_URL_}/confirmemail`);
+  res.redirect(`https://remi-hr-app.herokuapp.com/confirmemail`);
   res.status(200)
 };
 

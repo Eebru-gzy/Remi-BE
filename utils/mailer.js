@@ -40,7 +40,7 @@ const sendEmail = async (
       },
       data: {
         sender: {
-          name: "REMI EIM",
+          name: "REMI",
           email: sender_email,
         },
         to: [

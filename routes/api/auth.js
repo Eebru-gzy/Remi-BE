@@ -5,11 +5,10 @@ const {
   confirmEmail,
 } = require("../../controller/auth");
 
-const {sendConfirmEmailURL} = require('../../middleware/auth')
 const router = Router();
 
-router.post("/company/signup", sendConfirmEmailURL, companyRegister);
+router.post("/company/signup", companyRegister);
 router.post("/login", userLogin);
-router.get("/confirm_signup/:confirmToken", sendConfirmEmailURL, confirmEmail);
+router.get("/confirm_signup/:confirmToken", confirmEmail);
 
 module.exports = router;
