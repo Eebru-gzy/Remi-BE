@@ -60,13 +60,14 @@ exports.companyRegister = async (req, res) => {
     // generate confirm token
     const confirmToken = crypto.randomBytes(10).toString("hex");
     // Create signup confirmation url
-    const signupConfirmUrl = `${url}/api/confirm_signup/${confirmToken}`;
+    const signupConfirmUrl = `https://remi-be.herokuapp.com/api/confirm_signup/${confirmToken}`;
 
     const message = `Hello ${name},<br><br>To verify your email address (${email}), Please
         <a href="${signupConfirmUrl}"> Click here</a> OR <br><br> Copy and paste the link below in your browser <br>
         <a href="${signupConfirmUrl}">${signupConfirmUrl}</a>
         <br><br>Thank you, <br>REMI`;
     const subject = "Email Confirmation";
+    req.redirectUrl = url;
 
     const newCompany = await Company.create({
       name,
@@ -106,9 +107,7 @@ exports.confirmEmail = async (req, res) => {
     return errorResponse(400, "Invalid confirmation token", res);
   }
   if (company.email_verified) {
-    res.redirect(`${req.protocol}://${req.get(
-      "host"
-    )}/confirmemail`);
+    res.redirect(`${req.redirectUrl}/confirmemail`);
   }
 
   company.email_verified = true;
