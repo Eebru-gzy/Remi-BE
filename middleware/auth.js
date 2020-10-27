@@ -59,3 +59,7 @@ exports.employeeAuthorize = (req, res, next) => {
   }
   next();
 };
+
+exports.sendConfirmEmailURL = (req, res, next) => {
+  req.redirect_URL_ = req.body.url;
+}

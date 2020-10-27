@@ -67,7 +67,6 @@ exports.companyRegister = async (req, res) => {
         <a href="${signupConfirmUrl}">${signupConfirmUrl}</a>
         <br><br>Thank you, <br>REMI`;
     const subject = "Email Confirmation";
-    req.redirectUrl = url;
 
     const newCompany = await Company.create({
       name,
@@ -107,14 +106,13 @@ exports.confirmEmail = async (req, res) => {
     return errorResponse(400, "Invalid confirmation token", res);
   }
   if (company.email_verified) {
-    res.redirect(`${req.redirectUrl}/confirmemail`);
+    res.redirect(`${req.redirect_URL_}/confirmemail`);
   }
 
   company.email_verified = true;
   company.save();
-  res.redirect(`${req.protocol}://${req.get(
-      "host"
-    )}/confirmemail`);
+  res.redirect(`${req.redirect_URL_}/confirmemail`);
+  res.status(200)
 };
 
 // @desc    Login a company/employee
