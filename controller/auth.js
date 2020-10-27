@@ -153,6 +153,7 @@ exports.userLogin = async (req, res, next) => {
         );
         if (isMatch) {
           employee.password = undefined;
+          employee.role = "employee";
           return sendTokenResponse(200, employee, Employee, res);
         }
         return errorResponse(400, "Invalid credentials.", res);
@@ -168,12 +169,12 @@ exports.userLogin = async (req, res, next) => {
       // authenticate against companies table
       const isMatch = await Company.matchPassword(password, company.password);
       if (isMatch) {
-        company.password = undefined;
         return sendTokenResponse(200, company, Company, res);
       }
       return errorResponse(400, "Invalid credentials.", res);
     }
   } catch (error) {
+    console.log(error);
     return errorResponse(500, "Internal server error", res);
   }
 };
