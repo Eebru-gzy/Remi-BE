@@ -4,7 +4,7 @@ const { Sequelize } = require("sequelize");
 
 if (process.env.CLEARDB_DATABASE_URL) {
   sequelize = new Sequelize(
-    process.env.CLEARDATABASE_URL,
+    process.env.CLEARDB_DATABASE_URL,
     {
       dialect: process.env.DB_DIALECT,
       host: process.env.DB_HOST,
